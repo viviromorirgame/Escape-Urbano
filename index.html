@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>viviromorirgame - Escape Village Piqueras</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    :root {
+      --bg-pitch: #08090b;
+      --card-bg: rgba(18, 20, 26, 0.9);
+      --crimson: #e63946;
+      --crimson-glow: rgba(230, 57, 70, 0.35);
+      --gold-decay: #d4af37;
+      --text-pure: #f8f9fa;
+      --text-muted: #8b92a0;
+      --border-dark: rgba(255, 255, 255, 0.08);
+      --parchment-bg: #1c1813;
+      --parchment-border: #7c6a46;
+      --parchment-text: #e8d8b5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-pitch);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(230, 57, 70, 0.12) 0%, transparent 55%),
+        radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.8) 0%, transparent 60%);
+      color: var(--text-pure);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 68px 16px 32px 16px;
+    }
+
+    .top-ad-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 48px;
+      background: rgba(8, 9, 11, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      color: #666;
+      z-index: 1000;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .brand-svg {
+      width: 135px;
+      height: auto;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.25));
+    }
+
+    header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.7rem;
+      letter-spacing: 2px;
+      text-transform: lowercase;
+      color: var(--text-pure);
+      text-shadow: 0 0 12px var(--crimson-glow);
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .container {
+      max-width: 440px;
+      width: 100%;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border-radius: 14px;
+      padding: 24px 20px;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7);
+      border: 1px solid var(--border-dark);
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--crimson), transparent);
+    }
+
+    .card h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.25rem;
+      letter-spacing: 1px;
+      color: var(--text-pure);
+    }
+
+    .form-group {
+      margin-top: 18px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 8px;
+      border: 1px solid #272a34;
+      background: #111317;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .form-input:focus {
+      border-color: var(--crimson);
+      box-shadow: 0 0 10px var(--crimson-glow);
+    }
+
+    .btn-main {
+      width: 100%;
+      background: linear-gradient(135deg, #e63946 0%, #b51724 100%);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      font-weight: 700;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 16px;
+      box-shadow: 0 4px 16px var(--crimson-glow);
+      transition: transform 0.15s ease;
+    }
+
+    .btn-main:active {
+      transform: scale(0.98);
+    }
+
+    .user-chip {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      padding: 8px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+    }
+
+    .user-chip span {
+      color: var(--gold-decay);
+      font-weight: 600;
+    }
+
+    .btn-link {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.75rem;
+      text-decoration: underline;
+    }
+
+    .town-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .town-card {
+      background: rgba(26, 29, 37, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .town-card:hover:not(.blocked) {
+      border-color: var(--crimson);
+      background: rgba(35, 39, 49, 0.8);
+      transform: translateX(3px);
+    }
+
+    .town-card.blocked {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .town-card h3 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.05rem;
+      color: var(--text-pure);
+      margin-bottom: 4px;
+    }
+
+    .town-card p {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    .town-status {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--crimson);
+      background: rgba(230, 57, 70, 0.1);
+      border: 1px solid rgba(230, 57, 70, 0.3);
+      padding: 5px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .town-status.locked {
+      color: #777;
+      background: rgba(255, 255, 255, 0.05);
+      border-color: #333;
+    }
+
+    .town-status.active {
+      color: var(--gold-decay);
+      background: rgba(212, 175, 55, 0.1);
+      border-color: var(--gold-decay);
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .timer-badge {
+      background: #0d0e12;
+      border: 1px solid #2e323e;
+      color: var(--crimson);
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: monospace;
+      font-weight: 700;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid var(--gold-decay);
+      color: var(--gold-decay);
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .gps-proximity-box {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin: 12px 0;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .gps-proximity-box.locked {
+      border-color: var(--crimson);
+      color: #ff99a0;
+    }
+
+    .gps-proximity-box.unlocked {
+      border-color: #2a9d8f;
+      color: #a8dadc;
+    }
+
+    .verse-unlocked-box {
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px dashed var(--gold-decay);
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin: 12px 0;
+      font-style: italic;
+      color: #ffe8a3;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      display: none;
+    }
+
+    .poem-box {
+      font-style: italic;
+      background: rgba(0, 0, 0, 0.45);
+      padding: 16px;
+      border-left: 3px solid var(--gold-decay);
+      border-radius: 4px;
+      margin: 14px 0;
+      line-height: 1.6;
+      color: #ede2c9;
+      font-size: 0.92rem;
+      white-space: pre-line;
+      box-shadow: inset 0 0 12px rgba(0,0,0,0.6);
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-option {
+      background: rgba(26, 29, 37, 0.85);
+      color: var(--text-pure);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 14px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+
+    .btn-option:hover:not(:disabled) {
+      border-color: var(--crimson);
+      background: rgba(45, 20, 24, 0.5);
+    }
+
+    .btn-option:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .tool-card {
+      background: rgba(26, 29, 37, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .tool-card:hover {
+      border-color: var(--crimson);
+      background: rgba(45, 20, 24, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .tool-icon-svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 10px;
+      stroke: var(--gold-decay);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .tool-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-pure);
+    }
+
+    .padlock-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px 0 14px 0;
+    }
+
+    .padlock-shackle {
+      width: 70px;
+      height: 50px;
+      border: 10px solid #717684;
+      border-bottom: none;
+      border-top-left-radius: 35px;
+      border-top-right-radius: 35px;
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform-origin: left bottom;
+    }
+
+    .padlock-shackle.open {
+      transform: translateY(-16px) rotate(-22deg);
+      border-color: var(--gold-decay);
+    }
+
+    .padlock-body {
+      background: linear-gradient(180deg, #2b2e38 0%, #15161c 100%);
+      border: 2px solid #4a5060;
+      border-radius: 12px;
+      padding: 14px 18px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(255,255,255,0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: -4px;
+    }
+
+    .lock-dials-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .lock-dial {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .lock-btn {
+      background: #1d2027;
+      border: 1px solid #3d4250;
+      color: #aaa;
+      width: 44px;
+      height: 30px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      transition: all 0.15s ease;
+    }
+
+    .lock-btn:active {
+      background: #333845;
+      color: #fff;
+    }
+
+    .lock-display {
+      font-family: 'Cinzel', monospace, serif;
+      font-weight: 700;
+      font-size: 1.45rem;
+      color: var(--gold-decay);
+      background: #090a0d;
+      border: 1px solid #2f3442;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.9);
+      width: 46px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 4px 0;
+      border-radius: 4px;
+      user-select: none;
+    }
+
+    .btn-back {
+      background: transparent;
+      border: 1px solid #333;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.78rem;
+    }
+
+    .penalty-banner {
+      display: none;
+      background: rgba(230, 57, 70, 0.15);
+      border: 1px solid var(--crimson);
+      color: #ffa4ab;
+      padding: 14px;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 16px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      letter-spacing: 0.5px;
+    }
+
+    .disqualified-box {
+      display: none;
+      background: rgba(230, 57, 70, 0.2);
+      border: 1px solid var(--crimson);
+      color: #ffb4b9;
+      padding: 14px;
+      border-radius: 8px;
+      margin: 14px 0;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+
+    .scroll-btn {
+      width: 100%;
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid var(--gold-decay);
+      color: var(--gold-decay);
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .map-btn {
+      width: 100%;
+      background: rgba(42, 157, 143, 0.15);
+      border: 1px solid #2a9d8f;
+      color: #a8dadc;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .scroll-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      padding: 20px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .parchment-sheet {
+      background: var(--parchment-bg);
+      background-image: radial-gradient(#272118 1px, transparent 1px), radial-gradient(#1f1912 1px, var(--parchment-bg) 1px);
+      background-size: 20px 20px;
+      border: 3px double var(--parchment-border);
+      border-radius: 8px;
+      box-shadow: 0 0 35px rgba(0, 0, 0, 0.9), inset 0 0 30px rgba(0, 0, 0, 0.8);
+      max-width: 420px;
+      width: 100%;
+      max-height: 82vh;
+      overflow-y: auto;
+      padding: 28px 22px;
+      position: relative;
+    }
+
+    .parchment-sheet h3 {
+      font-family: 'Cinzel', serif;
+      color: var(--gold-decay);
+      margin-bottom: 6px;
+      text-align: center;
+      font-size: 1.25rem;
+      letter-spacing: 1.5px;
+    }
+
+    .parchment-subtitle {
+      font-size: 0.72rem;
+      color: #9a8867;
+      text-align: center;
+      margin-bottom: 22px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .parchment-poem-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 0 4px;
+    }
+
+    .verse-line {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 0.95rem;
+      line-height: 1.75;
+      text-align: center;
+      color: #4b4132;
+      transition: all 0.4s ease;
+      position: relative;
+      letter-spacing: 0.4px;
+    }
+
+    .verse-line.revealed {
+      color: var(--parchment-text);
+      text-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
+    }
+
+    .verse-line.unrevealed::after {
+      content: '· · · · · · · · · · · · · · · · · · ·';
+      letter-spacing: 3px;
+      color: #383023;
+      font-size: 0.7rem;
+    }
+
+    #mapContainer {
+      height: 240px;
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #333;
+      margin: 12px 0;
+      display: none;
+    }
+
+    .ranking-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 0.85rem;
+    }
+
+    .ranking-table th {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 8px;
+      color: var(--gold-decay);
+      text-align: left;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 1px;
+    }
+
+    .ranking-table td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 10px 8px;
+      color: var(--text-pure);
+    }
+
+    .ranking-table tr.current-user {
+      background: rgba(230, 57, 70, 0.12);
+      font-weight: 700;
+    }
+
+    .donation-banner {
+      background: rgba(18, 20, 26, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .btn-donate {
+      display: inline-block;
+      margin-top: 10px;
+      background: transparent;
+      color: var(--gold-decay);
+      border: 1px solid var(--gold-decay);
+      text-decoration: none;
+      font-weight: 700;
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+    }
+
+    .btn-donate:hover {
+      background: var(--gold-decay);
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="top-ad-banner">
+    <span>Publicidad · Espacio 320x50</span>
+  </aside>
+
+  <header>
+    <svg class="brand-svg" viewBox="0 0 290 160" fill="none">
+      <path d="M 145 36 C 125 15, 62 15, 38 48 C 14 80, 22 125, 58 140 C 92 152, 130 135, 145 124 C 160 135, 198 152, 232 140 C 268 125, 276 80, 252 48 C 228 15, 165 15, 145 36 Z" stroke="#f8f9fa" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M 66 68 Q 78 52 90 68" stroke="#f8f9fa" stroke-width="10" stroke-linecap="round" />
+      <path d="M 106 68 Q 118 52 130 68" stroke="#f8f9fa" stroke-width="10" stroke-linecap="round" />
+      <path d="M 72 88 Q 98 120 124 88" stroke="#f8f9fa" stroke-width="10" stroke-linecap="round" />
+      <path d="M 160 56 L 180 76" stroke="#f8f9fa" stroke-width="10" stroke-linecap="round" />
+      <path d="M 180 56 L 160 76" stroke="#f8f9fa" stroke-width="10" stroke-linecap="round" />
+      <path d="M 204 56 L 224 76" stroke="#f8f9fa" stroke-width="10" stroke-linecap="round" />
+      <path d="M 224 56 L 204 76" stroke="#f8f9fa" stroke-width="10" stroke-linecap="round" />
+      <path d="M 162 94 L 218 94" stroke="#f8f9fa" stroke-width="10" stroke-linecap="round" />
+      <path d="M 188 94 L 188 114 A 11 11 0 0 0 210 114 L 210 94" stroke="#f8f9fa" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+
+    <h1>viviromorirgame</h1>
+    <p>Escape Village Urbano</p>
+  </header>
+
+  <div class="container">
+
+    <section id="viewRegister" class="card" style="display: none;">
+      <h2>¿Quién desafía a viviromorirgame?</h2>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin: 8px 0 16px 0; line-height: 1.4;">
+        Introduce tu apodo de superviviente. Tu tiempo quedará sellado para siempre en las sombras del ranking.
+      </p>
+
+      <form onsubmit="guardarNombre(event)">
+        <div class="form-group">
+          <label for="inputNick">Nombre de explorador:</label>
+          <input type="text" id="inputNick" class="form-input" placeholder="Ej: Espectro99" maxlength="18" required autocomplete="off" />
+        </div>
+        <button type="submit" class="btn-main">Aceptar el Reto</button>
+      </form>
+    </section>
+
+    <section id="viewHome" class="card" style="display: none;">
+      <div class="user-chip">
+        <div>Explorador: <span id="userDisplay"></span></div>
+        <button class="btn-link" onclick="cambiarUsuario()">Cambiar</button>
+      </div>
+
+      <h2>Rutas Disponibles</h2>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">
+        Acude al punto de partida antes de iniciar la cuenta atrás.
+      </p>
+
+      <div class="town-list" id="townListContainer"></div>
+    </section>
+
+    <section id="viewGame" class="card" style="display: none;">
+      <div class="game-header">
+        <button class="btn-back" onclick="volverAlMenu()">← Abandonar</button>
+        <span class="timer-badge" id="liveTimer">00:00</span>
+      </div>
+
+      <div>
+        <span class="badge" id="stepBadge">Enigma I</span>
+      </div>
+      <h2 id="stepTitle" style="font-size: 1.25rem; margin-top: 8px;">Cargando...</h2>
+
+      <div class="gps-proximity-box locked" id="gpsBox">
+        <span id="gpsDistanceText">📍 Calculando proximidad GPS...</span>
+      </div>
+
+      <div class="poem-box" id="poemText" style="display: none;"></div>
+      <p id="questionText" style="font-size: 0.92rem; font-weight: 600; color: #f1faee; margin-top: 12px;"></p>
+      <div id="interactiveArea"></div>
+      <div class="verse-unlocked-box" id="verseBox"></div>
+      <div id="mapContainer"></div>
+
+      <div class="penalty-banner" id="penaltyBox">
+        ⛔ Fallo mortal. Quedas congelado: <span id="countdown">60</span>s
+      </div>
+
+      <button class="map-btn" onclick="alternarMapa()">🗺️ Consultar Mapa de Sombras</button>
+      <button class="scroll-btn" onclick="abrirPergamino()">📜 Pergamino del Tesoro (<span id="scrollCount">0</span>/8)</button>
+    </section>
+
+    <section id="viewLeaderboard" class="card" style="display: none;">
+      <h2 style="color: var(--gold-decay);">Juicio Final</h2>
+      <p style="font-size: 0.9rem; margin-top: 6px;">
+        Tiempo registrado: <strong id="finalTimeDisplay" style="color: var(--crimson);">00:00</strong>
+      </p>
+
+      <div class="disqualified-box" id="disqualifiedBox">
+        ⚠️ Hemos detectado que no has hecho el recorrido completo, no eres digno de estar en el top 10
+      </div>
+
+      <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 10px; line-height: 1.4;">
+        🔒 Has desafiado a este pueblo. El acceso permanecerá sellado para este dispositivo durante <strong>48 horas</strong>.
+      </p>
+
+      <h3 style="margin-top: 20px; font-size: 1.05rem; font-family: 'Cinzel', serif; letter-spacing: 1px;">
+        🏆 Salón de Supervivientes
+      </h3>
+      <table class="ranking-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Tiempo</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardBody"></tbody>
+      </table>
+
+      <button class="btn-main" style="margin-top: 20px;" onclick="volverAlMenu()">Cerrar y Volver</button>
+    </section>
+
+    <aside class="donation-banner">
+      <p>viviromorirgame es una experiencia libre y gratuita.</p>
+      <a href="https://ko-fi.com" target="_blank" class="btn-donate">☕ Ofrecer 1€ de tributo</a>
+    </aside>
+
+  </div>
+
+  <div class="scroll-modal" id="scrollModal" onclick="cerrarPergamino(event)">
+    <div class="parchment-sheet" onclick="event.stopPropagation()">
+      <h3>El Gran Secreto</h3>
+      <p class="parchment-subtitle">Manuscrito de Piqueras</p>
+      <div class="parchment-poem-body" id="scrollVersesList"></div>
+      <button class="btn-main" style="margin-top: 24px; padding: 11px; background:#4a3f2c; border:1px solid #7c6a46;" onclick="cerrarPergamino()">Enrollar Pergamino</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    const UMBRAL_GPS_METROS = 20;
+
+    // Reinicio limpio de producción: se limpian las pruebas locales de desarrollo
+    if (!localStorage.getItem('viviromorir_v1_live_init')) {
+      localStorage.removeItem('ranking_piqueras');
+      localStorage.removeItem('bloqueo_piqueras');
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith('bloqueo_') || k.startsWith('partida_iniciada_') || k.startsWith('penalizacion_fin_')) {
+          localStorage.removeItem(k);
+        }
+      });
+      localStorage.setItem('viviromorir_v1_live_init', 'true');
+    }
+
+    const baseDeDatosPueblos = {
+      piqueras: {
+        nombre: "Piqueras: El Tesoro Escondido",
+        dificultad: "Ruta en 8 · 8 Enigmas · ~20/25 min",
+        tiempoMinimoSegundos: 300,
+        etapas: [
+          {
+            id: 1,
+            lugar: "1. La Plaza / Ayuntamiento",
+            coords: [40.663408, -1.721863],
+            pregunta: "Estás en el corazón del pueblo, donde reside el gobierno local. ¿Qué institución municipal se ubica en este edificio?",
+            tipo: "opciones",
+            opciones: [
+              { texto: "El Ayuntamiento y Consultorio", correcta: true },
+              { texto: "El Cuartel de la Guardia", correcta: false },
+              { texto: "El Antiguo Silo de Grano", correcta: false }
+            ],
+            verso: "Sin el aire no vives, por eso no mueres.",
+            poemaRuta: "El enigma hacia tu próximo destino:\nNazco y muero sin cesar, pero sigo existiendo...\nY, sin salir de mi lecho, me encuentro siempre corriendo.",
+            siguientePista: "¡Acierto! Sigue el curso del agua hacia la Calle del Río."
+          },
+          {
+            id: 2,
+            lugar: "2. El Río (C. del Río)",
+            coords: [40.662873, -1.721461],
+            pregunta: "Has alcanzado el cauce del agua. ¿Cuál es la naturaleza principal que abraza este curso?",
+            tipo: "opciones",
+            opciones: [
+              { texto: "El cauce fluvial y su ribera", correcta: true },
+              { texto: "Una cantera de yeso seco", correcta: false },
+              { texto: "Un pinar de alta montaña", correcta: false }
+            ],
+            verso: "Tú eres infinita y diversa, y la que contiene más belleza.",
+            poemaRuta: "El enigma hacia tu próximo destino:\nUn frontón sin raqueta o una pared que retumba,\ndonde la pelota vuela y el sudor no se derrumba.",
+            siguientePista: "¡Correcto! Dirígete hacia el trinquete en la Calle La Fuente."
+          },
+          {
+            id: 3,
+            lugar: "3. El Trinquete (C. La Fuente)",
+            coords: [40.662348, -1.721907],
+            pregunta: "Frente al frontón abierto de la C. La Fuente: cuenta el total de ventanas de la casa situada justo enfrente de la pared de juego e introduce la cifra:",
+            tipo: "candado_numerico",
+            combinacionCorrecta: "8",
+            verso: "Nos permites soñar, nos enseñas la grandeza de cualquier lugar.",
+            poemaRuta: "El enigma hacia tu próximo destino:\nBajo un mismo techo las fiestas y asambleas cobran voz,\nun espacio amplio que a todo el pueblo unió.",
+            siguientePista: "¡Cerrojo abierto! Camina hacia el edificio común de la Calle Eras."
+          },
+          {
+            id: 4,
+            lugar: "4. El Edificio Multiusos",
+            coords: [40.661852, -1.722135],
+            pregunta: "Frente al salón multiusos del pueblo. ¿Para qué fines se destina principalmente este espacio vecinal?",
+            tipo: "opciones",
+            opciones: [
+              { texto: "Eventos vecinales, reuniones y festejos", correcta: true },
+              { texto: "Secadero exclusivo de embutidos", correcta: false },
+              { texto: "Refugio forestal de guardas", correcta: false }
+            ],
+            verso: "No nos pides nada a cambio, por eso te debemos tanto.",
+            poemaRuta: "El enigma hacia tu próximo destino:\nUna porción de tierra limpia y de horizonte plano,\ndonde el viento separaba la paja y el trillador alzaba el grano.",
+            siguientePista: "¡Comprobado! Sal del pueblo hacia el terreno llano de Las Eras."
+          },
+          {
+            id: 5,
+            lugar: "5. Las Eras",
+            coords: [40.661909, -1.723858],
+            pregunta: "Estás en el suelo ancestral de la trilla. Pulsa sobre el apero tradicional que separaba el grano de la paja arrastrado por bestias:",
+            tipo: "selector_herramientas",
+            verso: "Porque sin ti morimos, y todo pierde su encanto.",
+            poemaRuta: "El enigma hacia tu próximo destino:\nAsciende hacia el ojo que desafía a la noche serena,\ninstrumentos que miran al cosmos donde la luz estelar resuena.",
+            siguientePista: "¡Acierto! Dirígete hacia las alturas del Mirador Astronómico."
+          },
+          {
+            id: 6,
+            lugar: "6. Mirador Astronómico de Piqueras",
+            coords: [40.662383, -1.723842],
+            pregunta: "¿Hacia qué espectáculo de la naturaleza apunta la mirada de este mirador nocturno?",
+            tipo: "opciones",
+            opciones: [
+              { texto: "El cielo estrellado y los astros limpios", correcta: true },
+              { texto: "Las profundidades de una mina", correcta: false },
+              { texto: "Una autopista subterránea", correcta: false }
+            ],
+            verso: "Tú eres la única pieza que contiene toda la riqueza.",
+            poemaRuta: "El enigma hacia tu próximo destino:\nUn templo solemne de sillería renacentista alzado en la loma,\nsi miras al cielo una cruz el horizonte corona.",
+            siguientePista: "¡Descenso iniciado! Camina hacia la Iglesia de la Asunción."
+          },
+          {
+            id: 7,
+            lugar: "7. Iglesia de la Asunción de Nuestra Señora",
+            coords: [40.663674, -1.721987],
+            pregunta: "Frente al templo parroquial de Piqueras: fue erigido durante el esplendor del Renacimiento. Introduce su siglo de origen en números romanos:",
+            tipo: "candado_romano",
+            combinacionCorrecta: "XVI",
+            verso: "Sin el agua mueres, como millones de seres.",
+            poemaRuta: "El enigma hacia tu próximo destino:\nDonde duermen en paz perpetua aquellos que marcharon,\nlos nombres labrados en roca que jamás se olvidaron.",
+            siguientePista: "¡El templo te da paso! Sube al camposanto municipal."
+          },
+          {
+            id: 8,
+            lugar: "8. El Cementerio Municipal (El Juicio)",
+            coords: [40.664309, -1.722053],
+            pregunta: "En el umbral sagrado donde reposa la memoria del pueblo. ¿Quiénes descansan en este rincón de paz?",
+            tipo: "opciones",
+            opciones: [
+              { texto: "Los antepasados y almas del pueblo", correcta: true },
+              { texto: "Los viajeros de paso en una posada", correcta: false },
+              { texto: "Los comerciantes de una antigua lonja", correcta: false }
+            ],
+            verso: "Gracias a ti vivimos en paz, y estas palabras te vamos a dedicar.",
+            poemaRuta: "Has reunido los 8 versos en el pergamino sagrado.\nAhora, desciende de nuevo al corazón de la Plaza para proclamar el tesoro ante el pueblo.",
+            siguientePista: "¡Manuscrito sellado! Regresa a la Plaza Mayor para el desenlace."
+          },
+          {
+            id: 9,
+            lugar: "9. La Plaza / El Juicio Final",
+            coords: [40.663398, -1.722041],
+            pregunta: "Has cerrado el circuito en 8 volviendo al origen. Abre el pergamino, lee el poema entero y responde: ¿Cuál es el verdadero e incalculable tesoro de Piqueras?",
+            tipo: "texto_abierto",
+            respuestasValidas: ["piqueras", "el pueblo", "la gente", "su gente", "la vida", "nuestra gente", "los vecinos"],
+            verso: null,
+            poemaRuta: "",
+            siguientePista: "¡Has descubierto y sellado el gran tesoro de Piqueras!"
+          }
+        ]
+      }
+    };
+
+    let nombreJugador = null;
+    let idDispositivo = null;
+    let clavePuebloActual = "piqueras";
+    let indiceEtapa = 0;
+    let versosDesbloqueados = [];
+
+    let watchIdGPS = null;
+    let mapaLeaflet = null;
+    let marcadorUsuario = null;
+    let circuloObjetivo = null;
+    let gpsDesbloqueado = false;
+    let estadoEnMarcha = false;
+
+    let cronometroGlobal = null;
+    let temporizadorPenalizacion = null;
+
+    const viewRegister = document.getElementById('viewRegister');
+    const viewHome = document.getElementById('viewHome');
+    const viewGame = document.getElementById('viewGame');
+    const viewLeaderboard = document.getElementById('viewLeaderboard');
+    const userDisplay = document.getElementById('userDisplay');
+    const townListContainer = document.getElementById('townListContainer');
+
+    const stepBadge = document.getElementById('stepBadge');
+    const stepTitle = document.getElementById('stepTitle');
+    const verseBox = document.getElementById('verseBox');
+    const poemText = document.getElementById('poemText');
+    const questionText = document.getElementById('questionText');
+    const interactiveArea = document.getElementById('interactiveArea');
+    const penaltyBox = document.getElementById('penaltyBox');
+    const countdownSpan = document.getElementById('countdown');
+    const liveTimer = document.getElementById('liveTimer');
+    const disqualifiedBox = document.getElementById('disqualifiedBox');
+    const scrollCount = document.getElementById('scrollCount');
+    const scrollModal = document.getElementById('scrollModal');
+    const scrollVersesList = document.getElementById('scrollVersesList');
+    const gpsBox = document.getElementById('gpsBox');
+    const gpsDistanceText = document.getElementById('gpsDistanceText');
+    const mapContainer = document.getElementById('mapContainer');
+
+    function obtenerIdDispositivo() {
+      let id = localStorage.getItem('viviromorir_dev_id_v1');
+      if (!id) {
+        id = 'dev_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+        localStorage.setItem('viviromorir_dev_id_v1', id);
+      }
+      return id;
+    }
+
+    window.onload = function() {
+      idDispositivo = obtenerIdDispositivo();
+      nombreJugador = localStorage.getItem('viviromorir_nick');
+
+      if (nombreJugador) {
+        mostrarPantallaHome();
+      } else {
+        viewRegister.style.display = 'block';
+      }
+    };
+
+    function guardarNombre(e) {
+      e.preventDefault();
+      const nick = document.getElementById('inputNick').value.trim();
+      if (!nick) return;
+
+      nombreJugador = nick;
+      localStorage.setItem('viviromorir_nick', nombreJugador);
+      viewRegister.style.display = 'none';
+      mostrarPantallaHome();
+    }
+
+    function cambiarUsuario() {
+      nombreJugador = null;
+      localStorage.removeItem('viviromorir_nick');
+      viewHome.style.display = 'none';
+      viewRegister.style.display = 'block';
+    }
+
+    function mostrarPantallaHome() {
+      userDisplay.textContent = nombreJugador;
+      viewRegister.style.display = 'none';
+      viewGame.style.display = 'none';
+      viewLeaderboard.style.display = 'none';
+      viewHome.style.display = 'block';
+      renderizarListaPueblos();
+    }
+
+    function comprobarBloqueo48h(puebloClave) {
+      const claveStorage = `bloqueo_${idDispositivo}_${puebloClave}`;
+      const tiempoGuardado = localStorage.getItem(claveStorage);
+      if (!tiempoGuardado) return { bloqueado: false };
+
+      const ahora = Date.now();
+      const horas48Ms = 48 * 60 * 60 * 1000;
+      const diferencia = ahora - parseInt(tiempoGuardado);
+
+      if (diferencia < horas48Ms) {
+        const msRestantes = horas48Ms - diferencia;
+        const horasRestantes = Math.ceil(msRestantes / (1000 * 60 * 60));
+        return { bloqueado: true, horasRestantes };
+      }
+
+      return { bloqueado: false };
+    }
+
+    function renderizarListaPueblos() {
+      townListContainer.innerHTML = "";
+
+      Object.keys(baseDeDatosPueblos).forEach((clave) => {
+        const pueblo = baseDeDatosPueblos[clave];
+        const estadoBloqueo = comprobarBloqueo48h(clave);
+        const clavePartida = `partida_iniciada_${idDispositivo}_${clave}`;
+        const partidaEnCurso = localStorage.getItem(clavePartida);
+
+        const tarjeta = document.createElement('div');
+        tarjeta.className = `town-card ${estadoBloqueo.bloqueado ? 'blocked' : ''}`;
+
+        let statusHtml = '<span class="town-status">Entrar</span>';
+        if (estadoBloqueo.bloqueado) {
+          statusHtml = `<span class="town-status locked">Sellado (${estadoBloqueo.horasRestantes}h)</span>`;
+        } else if (partidaEnCurso) {
+          statusHtml = `<span class="town-status active">En Ruta</span>`;
+        }
+
+        tarjeta.innerHTML = `
+          <div>
+            <h3>${pueblo.nombre}</h3>
+            <p>${pueblo.dificultad}</p>
+          </div>
+          ${statusHtml}
+        `;
+
+        if (!estadoBloqueo.bloqueado) {
+          tarjeta.onclick = () => iniciarRuta(clave);
+        } else {
+          tarjeta.onclick = () => {
+            alert(`Tu destino ya fue juzgado en ${pueblo.nombre}. Debes esperar ${estadoBloqueo.horasRestantes} horas para desafiarlo de nuevo.`);
+          };
+        }
+
+        townListContainer.appendChild(tarjeta);
+      });
+    }
+
+    function iniciarRuta(clave) {
+      clavePuebloActual = clave;
+      indiceEtapa = 0;
+      versosDesbloqueados = [];
+      gpsDesbloqueado = false;
+      estadoEnMarcha = false;
+
+      const clavePartida = `partida_iniciada_${idDispositivo}_${clave}`;
+      let timestampInicio = localStorage.getItem(clavePartida);
+
+      if (!timestampInicio) {
+        timestampInicio = Date.now();
+        localStorage.setItem(clavePartida, timestampInicio.toString());
+      }
+
+      viewHome.style.display = 'none';
+      viewGame.style.display = 'block';
+
+      clearInterval(cronometroGlobal);
+      actualizarRelojVisual(parseInt(timestampInicio));
+      cronometroGlobal = setInterval(() => {
+        actualizarRelojVisual(parseInt(timestampInicio));
+      }, 1000);
+
+      iniciarSeguimientoGPS();
+      verificarPenalizacionPersistente();
+      cargarEtapa(indiceEtapa);
+    }
+
+    function calcularDistanciaMetros(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const φ1 = lat1 * Math.PI / 180;
+      const φ2 = lat2 * Math.PI / 180;
+      const Δφ = (lat2 - lat1) * Math.PI / 180;
+      const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return Math.round(R * c);
+    }
+
+    // Obligatoriedad GPS: el sensor nativo es la única vía de activación
+    function iniciarSeguimientoGPS() {
+      if (!("geolocation" in navigator)) {
+        gpsDistanceText.textContent = "Geolocalización no soportada en este navegador.";
+        return;
+      }
+
+      if (watchIdGPS) navigator.geolocation.clearWatch(watchIdGPS);
+
+      watchIdGPS = navigator.geolocation.watchPosition(
+        (pos) => {
+          const latUser = pos.coords.latitude;
+          const lonUser = pos.coords.longitude;
+          const etapa = baseDeDatosPueblos[clavePuebloActual].etapas[indiceEtapa];
+
+          if (!etapa || !etapa.coords) return;
+
+          const dist = calcularDistanciaMetros(latUser, lonUser, etapa.coords[0], etapa.coords[1]);
+
+          actualizarMarcadoresMapa(latUser, lonUser, etapa.coords);
+
+          if (dist <= UMBRAL_GPS_METROS) {
+            gpsBox.className = "gps-proximity-box unlocked";
+            gpsDistanceText.innerHTML = `📍 <strong>En el lugar</strong> (${dist}m) · Prueba desbloqueada`;
+            gpsDesbloqueado = true;
+            comprobarLlegadaDestino();
+          } else {
+            gpsBox.className = "gps-proximity-box locked";
+            gpsDistanceText.innerHTML = `📍 A <strong>${dist} metros</strong> (acércate a menos de ${UMBRAL_GPS_METROS}m)...`;
+            gpsDesbloqueado = false;
+          }
+        },
+        (err) => {
+          gpsDistanceText.textContent = "Buscando señal GPS... Sal al exterior.";
+        },
+        { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
+      );
+    }
+
+    function comprobarLlegadaDestino() {
+      if (!gpsDesbloqueado) return;
+
+      const etapa = baseDeDatosPueblos[clavePuebloActual].etapas[indiceEtapa];
+
+      if (estadoEnMarcha || indiceEtapa === 0) {
+        estadoEnMarcha = false;
+        stepTitle.textContent = etapa.lugar;
+        poemText.style.display = 'none';
+        desplegarAcertijoEnPantalla(etapa);
+      }
+    }
+
+    function alternarMapa() {
+      if (mapContainer.style.display === "block") {
+        mapContainer.style.display = "none";
+        return;
+      }
+
+      mapContainer.style.display = "block";
+      const etapa = baseDeDatosPueblos[clavePuebloActual].etapas[indiceEtapa];
+
+      if (!mapaLeaflet) {
+        mapaLeaflet = L.map('mapContainer').setView(etapa.coords, 17);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap &copy; CARTO'
+        }).addTo(mapaLeaflet);
+      } else {
+        mapaLeaflet.invalidateSize();
+        mapaLeaflet.setView(etapa.coords, 17);
+      }
+
+      actualizarMarcadoresMapa(null, null, etapa.coords);
+    }
+
+    function actualizarMarcadoresMapa(latUser, lonUser, coordsObjetivo) {
+      if (!mapaLeaflet) return;
+
+      if (circuloObjetivo) mapaLeaflet.removeLayer(circuloObjetivo);
+      circuloObjetivo = L.circle(coordsObjetivo, {
+        color: '#d4af37',
+        fillColor: '#d4af37',
+        fillOpacity: 0.25,
+        radius: UMBRAL_GPS_METROS
+      }).addTo(mapaLeaflet);
+
+      if (latUser && lonUser) {
+        if (marcadorUsuario) mapaLeaflet.removeLayer(marcadorUsuario);
+        marcadorUsuario = L.circleMarker([latUser, lonUser], {
+          color: '#e63946',
+          fillColor: '#e63946',
+          fillOpacity: 0.9,
+          radius: 7
+        }).addTo(mapaLeaflet);
+      }
+    }
+
+    function calcularSegundosTranscurridos() {
+      const clavePartida = `partida_iniciada_${idDispositivo}_${clavePuebloActual}`;
+      const timestampInicio = parseInt(localStorage.getItem(clavePartida) || Date.now());
+      return Math.floor((Date.now() - timestampInicio) / 1000);
+    }
+
+    function formatearTiempo(totalSegundos) {
+      const min = Math.floor(totalSegundos / 60);
+      const seg = totalSegundos % 60;
+      return `${min < 10 ? '0' : ''}${min}:${seg < 10 ? '0' : ''}${seg}`;
+    }
+
+    function actualizarRelojVisual(timestampInicio) {
+      const segundos = Math.floor((Date.now() - timestampInicio) / 1000);
+      liveTimer.textContent = formatearTiempo(segundos);
+    }
+
+    function volverAlMenu() {
+      if (watchIdGPS) navigator.geolocation.clearWatch(watchIdGPS);
+      clearInterval(cronometroGlobal);
+      clearInterval(temporizadorPenalizacion);
+      mostrarPantallaHome();
+    }
+
+    function cargarEtapa(indice) {
+      gpsDesbloqueado = false;
+      const pueblo = baseDeDatosPueblos[clavePuebloActual];
+      const etapa = pueblo.etapas[indice];
+
+      if (!etapa) {
+        finalizarJuego();
+        return;
+      }
+
+      stepBadge.textContent = `Enigma ${etapa.id} de ${pueblo.etapas.length}`;
+
+      if (indice > 0 && estadoEnMarcha) {
+        stepTitle.textContent = "Hacia el siguiente enigma...";
+        questionText.textContent = "";
+        interactiveArea.innerHTML = "";
+      } else {
+        stepTitle.textContent = etapa.lugar;
+        desplegarAcertijoEnPantalla(etapa);
+      }
+
+      verseBox.style.display = 'none';
+      verificarPenalizacionPersistente();
+    }
+
+    function desplegarAcertijoEnPantalla(etapa) {
+      questionText.textContent = etapa.pregunta;
+      interactiveArea.innerHTML = "";
+
+      if (etapa.tipo === "opciones") {
+        const grid = document.createElement('div');
+        grid.className = 'options-grid';
+        etapa.opciones.forEach((opcion) => {
+          const btn = document.createElement('button');
+          btn.className = 'btn-option';
+          btn.textContent = opcion.texto;
+          btn.onclick = () => resolverAccion(opcion.correcta, etapa);
+          grid.appendChild(btn);
+        });
+        interactiveArea.appendChild(grid);
+      } else if (etapa.tipo === "selector_herramientas") {
+        renderizarSelectorHerramientas(etapa);
+      } else if (etapa.tipo === "candado_numerico") {
+        renderizarCandadoReal(etapa.combinacionCorrecta, etapa, ["0","1","2","3","4","5","6","7","8","9"]);
+      } else if (etapa.tipo === "candado_romano") {
+        renderizarCandadoReal(etapa.combinacionCorrecta, etapa, ["I","V","X","L","C"]);
+      } else if (etapa.tipo === "texto_abierto") {
+        renderizarCofreFinal(etapa.respuestasValidas, etapa);
+      }
+    }
+
+    function renderizarSelectorHerramientas(etapa) {
+      const grid = document.createElement('div');
+      grid.className = 'tools-grid';
+
+      const herramientas = [
+        {
+          nombre: "El Trillo",
+          correcta: true,
+          svg: `<svg class="tool-icon-svg" viewBox="0 0 48 48"><rect x="10" y="8" width="28" height="32" rx="4"/><line x1="10" y1="16" x2="38" y2="16"/><line x1="10" y1="24" x2="38" y2="24"/><line x1="10" y1="32" x2="38" y2="32"/><circle cx="16" cy="12" r="1.5"/><circle cx="24" cy="20" r="1.5"/><circle cx="32" cy="28" r="1.5"/><circle cx="20" cy="36" r="1.5"/></svg>`
+        },
+        {
+          nombre: "La Pala",
+          correcta: false,
+          svg: `<svg class="tool-icon-svg" viewBox="0 0 48 48"><path d="M24 18 L24 42"/><path d="M20 42 L28 42"/><path d="M16 8 C16 18 32 18 32 8 Z"/></svg>`
+        },
+        {
+          nombre: "La Azada",
+          correcta: false,
+          svg: `<svg class="tool-icon-svg" viewBox="0 0 48 48"><line x1="16" y1="40" x2="30" y2="14"/><path d="M24 12 L38 16 L34 26 L22 20 Z"/></svg>`
+        },
+        {
+          nombre: "La Espada",
+          correcta: false,
+          svg: `<svg class="tool-icon-svg" viewBox="0 0 48 48"><line x1="24" y1="6" x2="24" y2="36"/><line x1="16" y1="34" x2="32" y2="34"/><line x1="24" y1="36" x2="24" y2="42"/><circle cx="24" cy="43" r="2"/></svg>`
+        }
+      ];
+
+      herramientas.forEach(h => {
+        const card = document.createElement('div');
+        card.className = 'tool-card';
+        card.innerHTML = `${h.svg}<span class="tool-label">${h.nombre}</span>`;
+        card.onclick = () => resolverAccion(h.correcta, etapa);
+        grid.appendChild(card);
+      });
+
+      interactiveArea.appendChild(grid);
+    }
+
+    function renderizarCandadoReal(combinacion, etapa, juegoCaracteres) {
+      const numDigitos = combinacion.length;
+      const valoresIdx = Array(numDigitos).fill(0);
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'padlock-wrapper';
+
+      const shackle = document.createElement('div');
+      shackle.className = 'padlock-shackle';
+
+      const body = document.createElement('div');
+      body.className = 'padlock-body';
+
+      const dialsRow = document.createElement('div');
+      dialsRow.className = 'lock-dials-row';
+
+      for (let i = 0; i < numDigitos; i++) {
+        const dial = document.createElement('div');
+        dial.className = 'lock-dial';
+
+        const btnUp = document.createElement('button');
+        btnUp.className = 'lock-btn';
+        btnUp.textContent = '▲';
+
+        const display = document.createElement('div');
+        display.className = 'lock-display';
+        display.textContent = juegoCaracteres[0];
+
+        const btnDown = document.createElement('button');
+        btnDown.className = 'lock-btn';
+        btnDown.textContent = '▼';
+
+        btnUp.onclick = () => {
+          valoresIdx[i] = (valoresIdx[i] + 1) % juegoCaracteres.length;
+          display.textContent = juegoCaracteres[valoresIdx[i]];
+        };
+
+        btnDown.onclick = () => {
+          valoresIdx[i] = (valoresIdx[i] - 1 + juegoCaracteres.length) % juegoCaracteres.length;
+          display.textContent = juegoCaracteres[valoresIdx[i]];
+        };
+
+        dial.appendChild(btnUp);
+        dial.appendChild(display);
+        dial.appendChild(btnDown);
+        dialsRow.appendChild(dial);
+      }
+
+      body.appendChild(dialsRow);
+      wrapper.appendChild(shackle);
+      wrapper.appendChild(body);
+
+      const btnAbrir = document.createElement('button');
+      btnAbrir.className = 'btn-main';
+      btnAbrir.textContent = '🔓 Tirar del Cerrojo';
+      btnAbrir.onclick = () => {
+        const respuesta = valoresIdx.map(idx => juegoCaracteres[idx]).join('');
+        if (respuesta === combinacion) {
+          shackle.classList.add('open');
+          setTimeout(() => {
+            resolverAccion(true, etapa);
+          }, 600);
+        } else {
+          resolverAccion(false, etapa);
+        }
+      };
+
+      interactiveArea.appendChild(wrapper);
+      interactiveArea.appendChild(btnAbrir);
+    }
+
+    function renderizarCofreFinal(respuestasValidas, etapa) {
+      const wrapper = document.createElement('div');
+      wrapper.style.marginTop = '14px';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'form-input';
+      input.placeholder = 'Escribe aquí el tesoro...';
+      input.autocomplete = 'off';
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-main';
+      btn.textContent = 'Revelar el Secreto';
+      btn.onclick = () => {
+        const valor = input.value.trim().toLowerCase();
+        const esCorrecto = respuestasValidas.some(r => valor.includes(r));
+        resolverAccion(esCorrecto, etapa);
+      };
+
+      wrapper.appendChild(input);
+      wrapper.appendChild(btn);
+      interactiveArea.appendChild(wrapper);
+    }
+
+    function resolverAccion(esCorrecta, etapa) {
+      const clavePenalizacion = `penalizacion_fin_${idDispositivo}_${clavePuebloActual}`;
+      const finPenalizacion = parseInt(localStorage.getItem(clavePenalizacion) || 0);
+
+      if (Date.now() < finPenalizacion) return;
+
+      if (esCorrecta) {
+        if (etapa.verso && !versosDesbloqueados.includes(etapa.verso)) {
+          versosDesbloqueados.push(etapa.verso);
+        }
+        scrollCount.textContent = versosDesbloqueados.length;
+
+        if (indiceEtapa >= baseDeDatosPueblos[clavePuebloActual].etapas.length - 1) {
+          alert(etapa.siguientePista);
+          finalizarJuego();
+          return;
+        }
+
+        questionText.textContent = "";
+        interactiveArea.innerHTML = "";
+        verseBox.style.display = 'block';
+        verseBox.innerHTML = `📜 <strong>Verso revelado:</strong><br><em>${etapa.verso}</em>`;
+
+        const btnPonerseEnMarcha = document.createElement('button');
+        btnPonerseEnMarcha.className = 'btn-main';
+        btnPonerseEnMarcha.textContent = 'Ponerse en Marcha →';
+        btnPonerseEnMarcha.onclick = () => {
+          estadoEnMarcha = true;
+          verseBox.style.display = 'none';
+          stepTitle.textContent = "Hacia el siguiente enigma...";
+          poemText.style.display = 'block';
+          poemText.textContent = etapa.poemaRuta;
+
+          interactiveArea.innerHTML = "<p style='font-size:0.8rem; color:#888; text-align:center; margin-top:14px;'>Sigue la pista poética. El nuevo acertijo se abrirá al llegar a menos de 20 metros.</p>";
+
+          indiceEtapa++;
+          gpsDesbloqueado = false;
+          gpsBox.className = "gps-proximity-box locked";
+        };
+        interactiveArea.appendChild(btnPonerseEnMarcha);
+
+      } else {
+        aplicarPenalizacion(60);
+      }
+    }
+
+    function aplicarPenalizacion(segundos) {
+      const finPenalizacion = Date.now() + (segundos * 1000);
+      const clavePenalizacion = `penalizacion_fin_${idDispositivo}_${clavePuebloActual}`;
+      localStorage.setItem(clavePenalizacion, finPenalizacion.toString());
+
+      ejecutarCuentaAtrasPenalizacion(finPenalizacion);
+    }
+
+    function verificarPenalizacionPersistente() {
+      const clavePenalizacion = `penalizacion_fin_${idDispositivo}_${clavePuebloActual}`;
+      const finPenalizacion = parseInt(localStorage.getItem(clavePenalizacion) || 0);
+
+      if (Date.now() < finPenalizacion) {
+        ejecutarCuentaAtrasPenalizacion(finPenalizacion);
+      } else {
+        localStorage.removeItem(clavePenalizacion);
+        penaltyBox.style.display = 'none';
+        const botones = interactiveArea.querySelectorAll('button, .tool-card');
+        botones.forEach(b => b.style.pointerEvents = "auto");
+      }
+    }
+
+    function ejecutarCuentaAtrasPenalizacion(finTimestamp) {
+      penaltyBox.style.display = 'block';
+      const botones = interactiveArea.querySelectorAll('button, .tool-card');
+      botones.forEach(b => b.style.pointerEvents = "none");
+
+      if (temporizadorPenalizacion) clearInterval(temporizadorPenalizacion);
+
+      const actualizarContador = () => {
+        const msRestantes = finTimestamp - Date.now();
+        const segRestantes = Math.ceil(msRestantes / 1000);
+
+        if (segRestantes <= 0) {
+          clearInterval(temporizadorPenalizacion);
+          const clavePenalizacion = `penalizacion_fin_${idDispositivo}_${clavePuebloActual}`;
+          localStorage.removeItem(clavePenalizacion);
+          penaltyBox.style.display = 'none';
+          botones.forEach(b => b.style.pointerEvents = "auto");
+        } else {
+          countdownSpan.textContent = segRestantes;
+        }
+      };
+
+      actualizarContador();
+      temporizadorPenalizacion = setInterval(actualizarContador, 1000);
+    }
+
+    function abrirPergamino() {
+      scrollVersesList.innerHTML = "";
+      const pueblo = baseDeDatosPueblos[clavePuebloActual];
+
+      pueblo.etapas.forEach((etapa) => {
+        if (!etapa.verso) return;
+        const p = document.createElement('p');
+        const desbloqueado = versosDesbloqueados.includes(etapa.verso);
+        p.className = `verse-line ${desbloqueado ? 'revealed' : 'unrevealed'}`;
+        p.textContent = desbloqueado ? etapa.verso : '';
+        scrollVersesList.appendChild(p);
+      });
+
+      scrollModal.style.display = 'flex';
+    }
+
+    function cerrarPergamino() {
+      scrollModal.style.display = 'none';
+    }
+
+    function finalizarJuego() {
+      if (watchIdGPS) navigator.geolocation.clearWatch(watchIdGPS);
+      clearInterval(cronometroGlobal);
+      clearInterval(temporizadorPenalizacion);
+
+      const tiempoTotal = calcularSegundosTranscurridos();
+      const pueblo = baseDeDatosPueblos[clavePuebloActual];
+      const tiempoMinimo = pueblo.tiempoMinimoSegundos || 0;
+
+      localStorage.removeItem(`partida_iniciada_${idDispositivo}_${clavePuebloActual}`);
+      localStorage.removeItem(`penalizacion_fin_${idDispositivo}_${clavePuebloActual}`);
+
+      const claveBloqueo = `bloqueo_${idDispositivo}_${clavePuebloActual}`;
+      localStorage.setItem(claveBloqueo, Date.now().toString());
+
+      document.getElementById('finalTimeDisplay').textContent = formatearTiempo(tiempoTotal);
+
+      const esTramposo = tiempoTotal < tiempoMinimo;
+
+      if (esTramposo) {
+        disqualifiedBox.style.display = 'block';
+      } else {
+        disqualifiedBox.style.display = 'none';
+        const rankingClave = `ranking_${clavePuebloActual}`;
+        let records = JSON.parse(localStorage.getItem(rankingClave) || '[]');
+
+        records.push({
+          nick: nombreJugador,
+          devId: idDispositivo,
+          tiempo: tiempoTotal,
+          fecha: Date.now()
+        });
+
+        records.sort((a, b) => a.tiempo - b.tiempo);
+        records = records.slice(0, 15);
+        localStorage.setItem(rankingClave, JSON.stringify(records));
+      }
+
+      renderizarLeaderboard(esTramposo ? null : tiempoTotal);
+
+      viewGame.style.display = 'none';
+      viewLeaderboard.style.display = 'block';
+    }
+
+    function gestionarCaducidadRanking(records) {
+      const ahora = Date.now();
+      const unAnoMs = 365 * 24 * 60 * 60 * 1000;
+
+      return records.filter((r) => {
+        const edad = ahora - (r.fecha || ahora);
+        if (edad > unAnoMs) {
+          return records.length <= 10;
+        }
+        return true;
+      });
+    }
+
+    function renderizarLeaderboard(tiempoValido) {
+      const rankingClave = `ranking_${clavePuebloActual}`;
+      let records = JSON.parse(localStorage.getItem(rankingClave) || '[]');
+
+      records = gestionarCaducidadRanking(records);
+      localStorage.setItem(rankingClave, JSON.stringify(records));
+
+      const tbody = document.getElementById('leaderboardBody');
+      tbody.innerHTML = "";
+
+      const top10 = records.slice(0, 10);
+
+      if (top10.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#555; padding:16px;'>Ningún superviviente ha sellado su nombre aún.</td></tr>";
+        return;
+      }
+
+      top10.forEach((record, index) => {
+        const tr = document.createElement('tr');
+        if (tiempoValido !== null && record.devId === idDispositivo && record.tiempo === tiempoValido) {
+          tr.className = 'current-user';
+        }
+
+        tr.innerHTML = `
+          <td>${index + 1}º</td>
+          <td>${record.nick}</td>
+          <td>${formatearTiempo(record.tiempo)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>
