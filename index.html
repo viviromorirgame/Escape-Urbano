@@ -47,18 +47,18 @@
       padding: 16px 14px 28px 14px;
     }
 
-    /* BANNER COMPACTO PANORÁMICO: Altura vertical reducida a la mitad */
+    /* BANNER PUBLICITARIO CON TUS MEDIDAS (150px) */
     .ad-banner-container {
       width: 100%;
       max-width: 440px;
-      height: 120px;
-      max-height: 120px;
+      height: 100px !important;
+      max-height: 100px !important;
       position: relative;
       border-radius: 8px;
       overflow: hidden;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
       background: #000;
       flex-shrink: 0;
     }
@@ -84,8 +84,8 @@
 
     .ad-image {
       width: 100%;
-      height: 100%;
-      max-height: 120px;
+      height: 100% !important;
+      max-height: 100px !important;
       object-fit: cover;
       object-position: center;
       display: block;
@@ -93,15 +93,15 @@
 
     .ad-tag {
       position: absolute;
-      top: 5px;
-      left: 7px;
+      top: 6px;
+      left: 8px;
       background: rgba(0, 0, 0, 0.75);
       color: #ffffff;
-      font-size: 0.58rem;
+      font-size: 0.62rem;
       font-weight: 700;
       letter-spacing: 1.2px;
-      padding: 2px 6px;
-      border-radius: 3px;
+      padding: 2px 7px;
+      border-radius: 4px;
       border: 1px solid rgba(255, 255, 255, 0.2);
       z-index: 10;
       text-transform: uppercase;
@@ -763,7 +763,6 @@
 </head>
 <body>
 
-  <!-- BANNER PUBLICITARIO PANORÁMICO ESTRICTO (ALTURA REDUCIDA) -->
   <aside class="ad-banner-container">
     <span class="ad-tag">PUBLICIDAD</span>
 
@@ -831,7 +830,7 @@
 
     <section id="viewGame" class="card" style="display: none;">
       <div class="game-header">
-        <button class="btn-back" onclick="volverAlMenu()">← Abandonar</button>
+        <button class="btn-back" onclick="volverAlMenu(true)">← Abandonar</button>
         <span class="timer-badge" id="liveTimer">00:00</span>
       </div>
 
@@ -886,10 +885,9 @@
         <tbody id="leaderboardBody"></tbody>
       </table>
 
-      <button class="btn-main" style="margin-top: 18px;" onclick="volverAlMenu()">Cerrar y Volver</button>
+      <button class="btn-main" style="margin-top: 18px;" onclick="volverAlMenu(false)">Cerrar y Volver</button>
     </section>
 
-    <!-- ZONA DE PAGO DIRECTO PAYPAL -->
     <aside class="donation-banner">
       <p>viviromorirgame es una experiencia libre y gratuita.</p>
       <a href="https://www.paypal.com/qrcodes/managed/21a590c6-3398-4447-9759-4b82d3b259d6" target="_blank" rel="noopener noreferrer" class="btn-donate">
@@ -912,13 +910,13 @@
 
   <script>
     const UMBRAL_GPS_METROS = 20;
+    const TIEMPO_MAXIMO_INACTIVIDAD_MS = 2 * 60 * 1000; // 2 minutos para resetear
 
-    // Reset limpio inicial para producción
     if (!localStorage.getItem('viviromorir_v1_live_init')) {
       localStorage.removeItem('ranking_piqueras');
       localStorage.removeItem('bloqueo_piqueras');
       Object.keys(localStorage).forEach(k => {
-        if (k.startsWith('bloqueo_') || k.startsWith('partida_iniciada_') || k.startsWith('penalizacion_fin_')) {
+        if (k.startsWith('bloqueo_') || k.startsWith('partida_iniciada_') || k.startsWith('penalizacion_fin_') || k.startsWith('ultima_actividad_')) {
           localStorage.removeItem(k);
         }
       });
@@ -1181,7 +1179,22 @@
         const pueblo = baseDeDatosPueblos[clave];
         const estadoBloqueo = comprobarBloqueo48h(clave);
         const clavePartida = `partida_iniciada_${idDispositivo}_${clave}`;
-        const partidaEnCurso = localStorage.getItem(clavePartida);
+        const claveActividad = `ultima_actividad_${idDispositivo}_${clave}`;
+        
+        const timestampInicio = localStorage.getItem(clavePartida);
+        const ultimaActividad = localStorage.getItem(claveActividad);
+        
+        let partidaEnCurso = false;
+
+        // Comprobación de latido: Si lleva más de 2 min fuera, se borra el inicio previo
+        if (timestampInicio) {
+          if (ultimaActividad && (Date.now() - parseInt(ultimaActividad)) > TIEMPO_MAXIMO_INACTIVIDAD_MS) {
+            localStorage.removeItem(clavePartida);
+            localStorage.removeItem(claveActividad);
+          } else {
+            partidaEnCurso = true;
+          }
+        }
 
         const tarjeta = document.createElement('div');
         tarjeta.className = `town-card ${estadoBloqueo.bloqueado ? 'blocked' : ''}`;
@@ -1221,20 +1234,30 @@
       estadoEnMarcha = false;
 
       const clavePartida = `partida_iniciada_${idDispositivo}_${clave}`;
+      const claveActividad = `ultima_actividad_${idDispositivo}_${clave}`;
+      
       let timestampInicio = localStorage.getItem(clavePartida);
+      let ultimaActividad = localStorage.getItem(claveActividad);
+      const ahora = Date.now();
 
-      if (!timestampInicio) {
-        timestampInicio = Date.now();
-        localStorage.setItem(clavePartida, timestampInicio.toString());
+      // Si ha pasado más de 2 minutos desconectado o nunca empezó, arranca de cero
+      if (!timestampInicio || (ultimaActividad && (ahora - parseInt(ultimaActividad)) > TIEMPO_MAXIMO_INACTIVIDAD_MS)) {
+        timestampInicio = ahora.toString();
+        localStorage.setItem(clavePartida, timestampInicio);
       }
+
+      localStorage.setItem(claveActividad, ahora.toString());
 
       viewHome.style.display = 'none';
       viewGame.style.display = 'block';
 
       clearInterval(cronometroGlobal);
       actualizarRelojVisual(parseInt(timestampInicio));
+      
+      // Cronómetro y latido constante mientras juegas
       cronometroGlobal = setInterval(() => {
         actualizarRelojVisual(parseInt(timestampInicio));
+        localStorage.setItem(claveActividad, Date.now().toString());
       }, 1000);
 
       iniciarSeguimientoGPS();
@@ -1369,10 +1392,17 @@
       liveTimer.textContent = formatearTiempo(segundos);
     }
 
-    function volverAlMenu() {
+    function volverAlMenu(reseteoCompleto = false) {
       if (watchIdGPS) navigator.geolocation.clearWatch(watchIdGPS);
       clearInterval(cronometroGlobal);
       clearInterval(temporizadorPenalizacion);
+
+      // Si abandona voluntariamente, se borra el inicio para que empiece de cero la próxima vez
+      if (reseteoCompleto) {
+        localStorage.removeItem(`partida_iniciada_${idDispositivo}_${clavePuebloActual}`);
+        localStorage.removeItem(`ultima_actividad_${idDispositivo}_${clavePuebloActual}`);
+      }
+
       mostrarPantallaHome();
     }
 
@@ -1684,6 +1714,7 @@
       const tiempoMinimo = pueblo.tiempoMinimoSegundos || 0;
 
       localStorage.removeItem(`partida_iniciada_${idDispositivo}_${clavePuebloActual}`);
+      localStorage.removeItem(`ultima_actividad_${idDispositivo}_${clavePuebloActual}`);
       localStorage.removeItem(`penalizacion_fin_${idDispositivo}_${clavePuebloActual}`);
 
       const claveBloqueo = `bloqueo_${idDispositivo}_${clavePuebloActual}`;
