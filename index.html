@@ -2,11 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>viviromorirgame - Escape Village Piqueras</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -14,7 +14,7 @@
   <style>
     :root {
       --bg-pitch: #08090b;
-      --card-bg: rgba(18, 20, 26, 0.9);
+      --card-bg: rgba(18, 20, 26, 0.92);
       --crimson: #e63946;
       --crimson-glow: rgba(230, 57, 70, 0.35);
       --gold-decay: #d4af37;
@@ -30,7 +30,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -44,21 +44,23 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: 24px 16px 32px 16px;
+      padding: 16px 14px 28px 14px;
     }
 
-    /* Banner publicitario panorámico y rotativo */
+    /* BANNER COMPACTO PANORÁMICO: Altura vertical reducida a la mitad */
     .ad-banner-container {
       width: 100%;
       max-width: 440px;
-      height: 80px;
+      height: 64px;
+      max-height: 64px;
       position: relative;
       border-radius: 8px;
       overflow: hidden;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
       background: #000;
+      flex-shrink: 0;
     }
 
     .ad-slide {
@@ -68,19 +70,22 @@
       width: 100%;
       height: 100%;
       opacity: 0;
-      transition: opacity 0.8s ease-in-out;
-      pointer-events: none;
+      visibility: hidden;
+      transition: opacity 0.6s ease-in-out, visibility 0.6s ease-in-out;
       display: block;
+      pointer-events: none;
     }
 
     .ad-slide.active {
       opacity: 1;
+      visibility: visible;
       pointer-events: auto;
     }
 
     .ad-image {
       width: 100%;
       height: 100%;
+      max-height: 64px;
       object-fit: cover;
       object-position: center;
       display: block;
@@ -88,39 +93,39 @@
 
     .ad-tag {
       position: absolute;
-      top: 6px;
-      left: 8px;
+      top: 5px;
+      left: 7px;
       background: rgba(0, 0, 0, 0.75);
-      color: #fff;
-      font-size: 0.62rem;
+      color: #ffffff;
+      font-size: 0.58rem;
       font-weight: 700;
-      letter-spacing: 1.5px;
-      padding: 2px 7px;
-      border-radius: 4px;
+      letter-spacing: 1.2px;
+      padding: 2px 6px;
+      border-radius: 3px;
       border: 1px solid rgba(255, 255, 255, 0.2);
-      z-index: 5;
+      z-index: 10;
       text-transform: uppercase;
       pointer-events: none;
     }
 
     header {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
     .brand-svg {
-      width: 135px;
+      width: 120px;
       height: auto;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.25));
     }
 
     header h1 {
       font-family: 'Cinzel', serif;
-      font-size: 1.7rem;
+      font-size: 1.6rem;
       letter-spacing: 2px;
       text-transform: lowercase;
       color: var(--text-pure);
@@ -129,10 +134,10 @@
 
     header p {
       color: var(--text-muted);
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       letter-spacing: 1px;
       text-transform: uppercase;
-      margin-top: 4px;
+      margin-top: 3px;
     }
 
     .container {
@@ -143,11 +148,11 @@
     .card {
       background: var(--card-bg);
       backdrop-filter: blur(12px);
-      border-radius: 14px;
-      padding: 24px 20px;
+      border-radius: 12px;
+      padding: 20px 18px;
       box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7);
       border: 1px solid var(--border-dark);
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       position: relative;
       overflow: hidden;
     }
@@ -164,19 +169,19 @@
 
     .card h2 {
       font-family: 'Cinzel', serif;
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       letter-spacing: 1px;
       color: var(--text-pure);
     }
 
     .form-group {
-      margin-top: 18px;
+      margin-top: 16px;
       text-align: left;
     }
 
     .form-group label {
       display: block;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: var(--text-muted);
@@ -185,14 +190,14 @@
 
     .form-input {
       width: 100%;
-      padding: 13px 14px;
+      padding: 12px 14px;
       border-radius: 8px;
       border: 1px solid #272a34;
       background: #111317;
       color: #fff;
       font-size: 0.95rem;
       outline: none;
-      transition: all 0.25s ease;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .form-input:focus {
@@ -205,14 +210,14 @@
       background: linear-gradient(135deg, #e63946 0%, #b51724 100%);
       color: #fff;
       border: none;
-      padding: 14px;
+      padding: 13px;
       font-weight: 700;
       border-radius: 8px;
-      font-size: 0.95rem;
-      letter-spacing: 1.5px;
+      font-size: 0.9rem;
+      letter-spacing: 1.2px;
       text-transform: uppercase;
       cursor: pointer;
-      margin-top: 16px;
+      margin-top: 14px;
       box-shadow: 0 4px 16px var(--crimson-glow);
       transition: transform 0.15s ease;
     }
@@ -225,12 +230,12 @@
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 6px;
-      padding: 8px 14px;
+      padding: 8px 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
-      font-size: 0.85rem;
+      margin-bottom: 14px;
+      font-size: 0.82rem;
     }
 
     .user-chip span {
@@ -251,25 +256,24 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      margin-top: 16px;
+      margin-top: 14px;
     }
 
     .town-card {
       background: rgba(26, 29, 37, 0.6);
       border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 10px;
-      padding: 16px 18px;
+      padding: 14px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: all 0.25s ease;
       cursor: pointer;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
     }
 
     .town-card:hover:not(.blocked) {
       border-color: var(--crimson);
       background: rgba(35, 39, 49, 0.8);
-      transform: translateX(3px);
     }
 
     .town-card.blocked {
@@ -279,30 +283,30 @@
 
     .town-card h3 {
       font-family: 'Cinzel', serif;
-      font-size: 1.05rem;
+      font-size: 1rem;
       color: var(--text-pure);
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .town-card p {
       color: var(--text-muted);
-      font-size: 0.78rem;
+      font-size: 0.75rem;
     }
 
     .town-status {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
       color: var(--crimson);
       background: rgba(230, 57, 70, 0.1);
       border: 1px solid rgba(230, 57, 70, 0.3);
-      padding: 5px 10px;
-      border-radius: 6px;
+      padding: 4px 8px;
+      border-radius: 5px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
     .town-status.locked {
-      color: #777;
+      color: #888;
       background: rgba(255, 255, 255, 0.05);
       border-color: #333;
     }
@@ -317,16 +321,16 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .timer-badge {
       background: #0d0e12;
       border: 1px solid #2e323e;
       color: var(--crimson);
-      padding: 5px 12px;
-      border-radius: 8px;
-      font-size: 0.95rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.9rem;
       font-family: monospace;
       font-weight: 700;
     }
@@ -337,9 +341,9 @@
       border: 1px solid var(--gold-decay);
       color: var(--gold-decay);
       font-weight: 700;
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 4px;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
@@ -348,9 +352,9 @@
       background: rgba(0, 0, 0, 0.5);
       border: 1px solid #333;
       border-radius: 8px;
-      padding: 10px 14px;
+      padding: 9px 12px;
       margin: 12px 0;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -375,21 +379,21 @@
       margin: 12px 0;
       font-style: italic;
       color: #ffe8a3;
-      font-size: 0.9rem;
-      line-height: 1.5;
+      font-size: 0.88rem;
+      line-height: 1.45;
       display: none;
     }
 
     .poem-box {
       font-style: italic;
       background: rgba(0, 0, 0, 0.45);
-      padding: 16px;
+      padding: 14px;
       border-left: 3px solid var(--gold-decay);
       border-radius: 4px;
-      margin: 14px 0;
-      line-height: 1.6;
+      margin: 12px 0;
+      line-height: 1.55;
       color: #ede2c9;
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       white-space: pre-line;
       box-shadow: inset 0 0 12px rgba(0,0,0,0.6);
     }
@@ -397,20 +401,20 @@
     .options-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 10px;
-      margin-top: 16px;
+      gap: 9px;
+      margin-top: 14px;
     }
 
     .btn-option {
       background: rgba(26, 29, 37, 0.85);
       color: var(--text-pure);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 14px 16px;
+      padding: 12px 14px;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       text-align: left;
-      transition: all 0.2s ease;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
     }
 
     .btn-option:hover:not(:disabled) {
@@ -426,34 +430,33 @@
     .tools-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-top: 16px;
+      gap: 10px;
+      margin-top: 14px;
     }
 
     .tool-card {
       background: rgba(26, 29, 37, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      padding: 16px 12px;
+      border-radius: 8px;
+      padding: 14px 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
       text-align: center;
     }
 
     .tool-card:hover {
       border-color: var(--crimson);
       background: rgba(45, 20, 24, 0.5);
-      transform: translateY(-2px);
     }
 
     .tool-icon-svg {
-      width: 48px;
-      height: 48px;
-      margin-bottom: 10px;
+      width: 44px;
+      height: 44px;
+      margin-bottom: 8px;
       stroke: var(--gold-decay);
       fill: none;
       stroke-width: 2;
@@ -462,7 +465,7 @@
     }
 
     .tool-label {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
       color: var(--text-pure);
     }
@@ -471,31 +474,31 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin: 20px 0 14px 0;
+      margin: 16px 0 12px 0;
     }
 
     .padlock-shackle {
-      width: 70px;
-      height: 50px;
-      border: 10px solid #717684;
+      width: 64px;
+      height: 44px;
+      border: 9px solid #717684;
       border-bottom: none;
-      border-top-left-radius: 35px;
-      border-top-right-radius: 35px;
+      border-top-left-radius: 32px;
+      border-top-right-radius: 32px;
       transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       transform-origin: left bottom;
     }
 
     .padlock-shackle.open {
-      transform: translateY(-16px) rotate(-22deg);
+      transform: translateY(-14px) rotate(-22deg);
       border-color: var(--gold-decay);
     }
 
     .padlock-body {
       background: linear-gradient(180deg, #2b2e38 0%, #15161c 100%);
       border: 2px solid #4a5060;
-      border-radius: 12px;
-      padding: 14px 18px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 12px 16px;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(255,255,255,0.15);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -504,7 +507,7 @@
 
     .lock-dials-row {
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
 
     .lock-dial {
@@ -517,12 +520,11 @@
       background: #1d2027;
       border: 1px solid #3d4250;
       color: #aaa;
-      width: 44px;
-      height: 30px;
+      width: 42px;
+      height: 28px;
       cursor: pointer;
       border-radius: 4px;
-      font-size: 0.8rem;
-      transition: all 0.15s ease;
+      font-size: 0.75rem;
     }
 
     .lock-btn:active {
@@ -533,13 +535,13 @@
     .lock-display {
       font-family: 'Cinzel', monospace, serif;
       font-weight: 700;
-      font-size: 1.45rem;
+      font-size: 1.35rem;
       color: var(--gold-decay);
       background: #090a0d;
       border: 1px solid #2f3442;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.9);
-      width: 46px;
-      height: 48px;
+      width: 42px;
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -552,10 +554,10 @@
       background: transparent;
       border: 1px solid #333;
       color: var(--text-muted);
-      padding: 6px 12px;
-      border-radius: 6px;
+      padding: 5px 10px;
+      border-radius: 5px;
       cursor: pointer;
-      font-size: 0.78rem;
+      font-size: 0.75rem;
     }
 
     .penalty-banner {
@@ -563,12 +565,12 @@
       background: rgba(230, 57, 70, 0.15);
       border: 1px solid var(--crimson);
       color: #ffa4ab;
-      padding: 14px;
+      padding: 12px;
       border-radius: 8px;
       text-align: center;
-      margin-top: 16px;
+      margin-top: 14px;
       font-weight: 700;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       letter-spacing: 0.5px;
     }
 
@@ -577,11 +579,11 @@
       background: rgba(230, 57, 70, 0.2);
       border: 1px solid var(--crimson);
       color: #ffb4b9;
-      padding: 14px;
+      padding: 12px;
       border-radius: 8px;
-      margin: 14px 0;
-      font-size: 0.88rem;
-      line-height: 1.5;
+      margin: 12px 0;
+      font-size: 0.85rem;
+      line-height: 1.45;
       font-weight: 600;
     }
 
@@ -590,13 +592,13 @@
       background: rgba(212, 175, 55, 0.12);
       border: 1px solid var(--gold-decay);
       color: var(--gold-decay);
-      padding: 10px;
+      padding: 9px;
       border-radius: 8px;
-      margin-top: 12px;
+      margin-top: 10px;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
     }
 
     .map-btn {
@@ -604,13 +606,13 @@
       background: rgba(42, 157, 143, 0.15);
       border: 1px solid #2a9d8f;
       color: #a8dadc;
-      padding: 10px;
+      padding: 9px;
       border-radius: 8px;
       margin-top: 8px;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
     }
 
     .scroll-modal {
@@ -639,24 +641,24 @@
       width: 100%;
       max-height: 82vh;
       overflow-y: auto;
-      padding: 28px 22px;
+      padding: 24px 18px;
       position: relative;
     }
 
     .parchment-sheet h3 {
       font-family: 'Cinzel', serif;
       color: var(--gold-decay);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       text-align: center;
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       letter-spacing: 1.5px;
     }
 
     .parchment-subtitle {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: #9a8867;
       text-align: center;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
       text-transform: uppercase;
       letter-spacing: 2px;
     }
@@ -670,11 +672,11 @@
 
     .verse-line {
       font-family: 'Cinzel', Georgia, serif;
-      font-size: 0.95rem;
-      line-height: 1.75;
+      font-size: 0.9rem;
+      line-height: 1.65;
       text-align: center;
       color: #4b4132;
-      transition: all 0.4s ease;
+      transition: color 0.4s ease;
       position: relative;
       letter-spacing: 0.4px;
     }
@@ -692,24 +694,24 @@
     }
 
     #mapContainer {
-      height: 240px;
+      height: 220px;
       width: 100%;
       border-radius: 8px;
       border: 1px solid #333;
-      margin: 12px 0;
+      margin: 10px 0;
       display: none;
     }
 
     .ranking-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 16px;
-      font-size: 0.85rem;
+      margin-top: 14px;
+      font-size: 0.82rem;
     }
 
     .ranking-table th {
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 10px 8px;
+      padding: 9px 6px;
       color: var(--gold-decay);
       text-align: left;
       font-family: 'Cinzel', serif;
@@ -718,7 +720,7 @@
 
     .ranking-table td {
       border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      padding: 10px 8px;
+      padding: 9px 6px;
       color: var(--text-pure);
     }
 
@@ -731,26 +733,26 @@
       background: rgba(18, 20, 26, 0.5);
       border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 10px;
-      padding: 16px;
+      padding: 14px;
       text-align: center;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
     }
 
     .btn-donate {
       display: inline-block;
-      margin-top: 10px;
+      margin-top: 8px;
       background: transparent;
       color: var(--gold-decay);
       border: 1px solid var(--gold-decay);
       text-decoration: none;
       font-weight: 700;
-      padding: 9px 18px;
+      padding: 8px 16px;
       border-radius: 6px;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       letter-spacing: 1px;
       text-transform: uppercase;
-      transition: all 0.2s ease;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
     .btn-donate:hover {
@@ -761,23 +763,20 @@
 </head>
 <body>
 
-  <!-- BANNER ROTATIVO MULTI-PUBLICIDAD (AÑADE TANTOS COMO QUIERAS) -->
+  <!-- BANNER PUBLICITARIO PANORÁMICO ESTRICTO (ALTURA REDUCIDA) -->
   <aside class="ad-banner-container">
     <span class="ad-tag">PUBLICIDAD</span>
 
-    <!-- Anuncio 1: Cambia '#' por el enlace del patrocinador si lo deseas -->
     <a href="#" target="_blank" class="ad-slide active">
       <img src="promo.jpg" alt="Publicidad 1" class="ad-image">
     </a>
 
-    <!-- Anuncio 2: Sube promo2.jpg a tu GitHub para que aparezca -->
     <a href="#" target="_blank" class="ad-slide">
-      <img src="promo2.jpg" alt="Publicidad 2" class="ad-image">
+      <img src="promo2.jpg" alt="Publicidad 2" class="ad-image" onerror="this.parentElement.style.display='none';">
     </a>
 
-    <!-- Anuncio 3: Sube promo3.jpg a tu GitHub para que aparezca -->
     <a href="#" target="_blank" class="ad-slide">
-      <img src="promo3.jpg" alt="Publicidad 3" class="ad-image">
+      <img src="promo3.jpg" alt="Publicidad 3" class="ad-image" onerror="this.parentElement.style.display='none';">
     </a>
   </aside>
 
@@ -803,7 +802,7 @@
 
     <section id="viewRegister" class="card" style="display: none;">
       <h2>¿Quién desafía a viviromorirgame?</h2>
-      <p style="font-size: 0.82rem; color: var(--text-muted); margin: 8px 0 16px 0; line-height: 1.4;">
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin: 8px 0 16px 0; line-height: 1.4;">
         Introduce tu apodo de superviviente. Tu tiempo quedará sellado para siempre en las sombras del ranking.
       </p>
 
@@ -823,7 +822,7 @@
       </div>
 
       <h2>Rutas Disponibles</h2>
-      <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
         Acude al punto de partida antes de iniciar la cuenta atrás.
       </p>
 
@@ -839,14 +838,14 @@
       <div>
         <span class="badge" id="stepBadge">Enigma I</span>
       </div>
-      <h2 id="stepTitle" style="font-size: 1.25rem; margin-top: 8px;">Cargando...</h2>
+      <h2 id="stepTitle" style="font-size: 1.2rem; margin-top: 8px;">Cargando...</h2>
 
       <div class="gps-proximity-box locked" id="gpsBox">
         <span id="gpsDistanceText">📍 Calculando proximidad GPS...</span>
       </div>
 
       <div class="poem-box" id="poemText" style="display: none;"></div>
-      <p id="questionText" style="font-size: 0.92rem; font-weight: 600; color: #f1faee; margin-top: 12px;"></p>
+      <p id="questionText" style="font-size: 0.9rem; font-weight: 600; color: #f1faee; margin-top: 10px;"></p>
       <div id="interactiveArea"></div>
       <div class="verse-unlocked-box" id="verseBox"></div>
       <div id="mapContainer"></div>
@@ -861,7 +860,7 @@
 
     <section id="viewLeaderboard" class="card" style="display: none;">
       <h2 style="color: var(--gold-decay);">Juicio Final</h2>
-      <p style="font-size: 0.9rem; margin-top: 6px;">
+      <p style="font-size: 0.88rem; margin-top: 6px;">
         Tiempo registrado: <strong id="finalTimeDisplay" style="color: var(--crimson);">00:00</strong>
       </p>
 
@@ -869,11 +868,11 @@
         ⚠️ Hemos detectado que no has hecho el recorrido completo, no eres digno de estar en el top 10
       </div>
 
-      <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 10px; line-height: 1.4;">
+      <p style="font-size: 0.76rem; color: var(--text-muted); margin-top: 8px; line-height: 1.4;">
         🔒 Has desafiado a este pueblo. El acceso permanecerá sellado para este dispositivo durante <strong>48 horas</strong>.
       </p>
 
-      <h3 style="margin-top: 20px; font-size: 1.05rem; font-family: 'Cinzel', serif; letter-spacing: 1px;">
+      <h3 style="margin-top: 18px; font-size: 1rem; font-family: 'Cinzel', serif; letter-spacing: 1px;">
         🏆 Salón de Supervivientes
       </h3>
       <table class="ranking-table">
@@ -887,13 +886,13 @@
         <tbody id="leaderboardBody"></tbody>
       </table>
 
-      <button class="btn-main" style="margin-top: 20px;" onclick="volverAlMenu()">Cerrar y Volver</button>
+      <button class="btn-main" style="margin-top: 18px;" onclick="volverAlMenu()">Cerrar y Volver</button>
     </section>
 
     <!-- ZONA DE PAGO DIRECTO PAYPAL -->
     <aside class="donation-banner">
       <p>viviromorirgame es una experiencia libre y gratuita.</p>
-      <a href="https://www.paypal.com/qrcodes/managed/21a590c6-3398-4447-9759-4b82d3b259d6" target="_blank" class="btn-donate">
+      <a href="https://www.paypal.com/qrcodes/managed/21a590c6-3398-4447-9759-4b82d3b259d6" target="_blank" rel="noopener noreferrer" class="btn-donate">
         ☕ Ofrecer 1€ de tributo (PayPal)
       </a>
     </aside>
@@ -905,7 +904,7 @@
       <h3>El Gran Secreto</h3>
       <p class="parchment-subtitle">Manuscrito de Piqueras</p>
       <div class="parchment-poem-body" id="scrollVersesList"></div>
-      <button class="btn-main" style="margin-top: 24px; padding: 11px; background:#4a3f2c; border:1px solid #7c6a46;" onclick="cerrarPergamino()">Enrollar Pergamino</button>
+      <button class="btn-main" style="margin-top: 20px; padding: 10px; background:#4a3f2c; border:1px solid #7c6a46;" onclick="cerrarPergamino()">Enrollar Pergamino</button>
     </div>
   </div>
 
@@ -914,7 +913,7 @@
   <script>
     const UMBRAL_GPS_METROS = 20;
 
-    // Reset limpio de partidas de prueba locales
+    // Reset limpio inicial para producción
     if (!localStorage.getItem('viviromorir_v1_live_init')) {
       localStorage.removeItem('ranking_piqueras');
       localStorage.removeItem('bloqueo_piqueras');
@@ -1117,7 +1116,9 @@
     };
 
     function iniciarRotadorPublicidad() {
-      const diapositivas = document.querySelectorAll('.ad-slide');
+      const diapositivas = Array.from(document.querySelectorAll('.ad-slide')).filter(slide => {
+        return slide.style.display !== 'none';
+      });
       if (diapositivas.length <= 1) return;
 
       let indiceActual = 0;
@@ -1125,7 +1126,7 @@
         diapositivas[indiceActual].classList.remove('active');
         indiceActual = (indiceActual + 1) % diapositivas.length;
         diapositivas[indiceActual].classList.add('active');
-      }, 5000); // Rota automáticamente cada 5 segundos
+      }, 5000);
     }
 
     function guardarNombre(e) {
