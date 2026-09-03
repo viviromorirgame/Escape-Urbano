@@ -47,41 +47,60 @@
       padding: 24px 16px 32px 16px;
     }
 
-    /* Banner publicitario integrado con imagen */
+    /* Banner publicitario panorámico y rotativo */
     .ad-banner-container {
       width: 100%;
       max-width: 440px;
+      height: 80px;
       position: relative;
-      border-radius: 10px;
+      border-radius: 8px;
       overflow: hidden;
       margin-bottom: 18px;
       border: 1px solid rgba(255, 255, 255, 0.15);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-      aspect-ratio: 16 / 9;
       background: #000;
+    }
+
+    .ad-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+      pointer-events: none;
+      display: block;
+    }
+
+    .ad-slide.active {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .ad-image {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center;
       display: block;
     }
 
     .ad-tag {
       position: absolute;
-      top: 8px;
+      top: 6px;
       left: 8px;
       background: rgba(0, 0, 0, 0.75);
       color: #fff;
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       font-weight: 700;
       letter-spacing: 1.5px;
-      padding: 3px 8px;
+      padding: 2px 7px;
       border-radius: 4px;
       border: 1px solid rgba(255, 255, 255, 0.2);
-      z-index: 2;
+      z-index: 5;
       text-transform: uppercase;
+      pointer-events: none;
     }
 
     header {
@@ -742,9 +761,24 @@
 </head>
 <body>
 
+  <!-- BANNER ROTATIVO MULTI-PUBLICIDAD (AÑADE TANTOS COMO QUIERAS) -->
   <aside class="ad-banner-container">
     <span class="ad-tag">PUBLICIDAD</span>
-    <img src="promo.jpg" alt="Publicidad" class="ad-image">
+
+    <!-- Anuncio 1: Cambia '#' por el enlace del patrocinador si lo deseas -->
+    <a href="#" target="_blank" class="ad-slide active">
+      <img src="promo.jpg" alt="Publicidad 1" class="ad-image">
+    </a>
+
+    <!-- Anuncio 2: Sube promo2.jpg a tu GitHub para que aparezca -->
+    <a href="#" target="_blank" class="ad-slide">
+      <img src="promo2.jpg" alt="Publicidad 2" class="ad-image">
+    </a>
+
+    <!-- Anuncio 3: Sube promo3.jpg a tu GitHub para que aparezca -->
+    <a href="#" target="_blank" class="ad-slide">
+      <img src="promo3.jpg" alt="Publicidad 3" class="ad-image">
+    </a>
   </aside>
 
   <header>
@@ -856,6 +890,7 @@
       <button class="btn-main" style="margin-top: 20px;" onclick="volverAlMenu()">Cerrar y Volver</button>
     </section>
 
+    <!-- ZONA DE PAGO DIRECTO PAYPAL -->
     <aside class="donation-banner">
       <p>viviromorirgame es una experiencia libre y gratuita.</p>
       <a href="https://www.paypal.com/qrcodes/managed/21a590c6-3398-4447-9759-4b82d3b259d6" target="_blank" class="btn-donate">
@@ -1072,12 +1107,26 @@
       idDispositivo = obtenerIdDispositivo();
       nombreJugador = localStorage.getItem('viviromorir_nick');
 
+      iniciarRotadorPublicidad();
+
       if (nombreJugador) {
         mostrarPantallaHome();
       } else {
         viewRegister.style.display = 'block';
       }
     };
+
+    function iniciarRotadorPublicidad() {
+      const diapositivas = document.querySelectorAll('.ad-slide');
+      if (diapositivas.length <= 1) return;
+
+      let indiceActual = 0;
+      setInterval(() => {
+        diapositivas[indiceActual].classList.remove('active');
+        indiceActual = (indiceActual + 1) % diapositivas.length;
+        diapositivas[indiceActual].classList.add('active');
+      }, 5000); // Rota automáticamente cada 5 segundos
+    }
 
     function guardarNombre(e) {
       e.preventDefault();
