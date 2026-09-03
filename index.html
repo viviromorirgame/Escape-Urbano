@@ -44,25 +44,43 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: 68px 16px 32px 16px;
+      padding: 24px 16px 32px 16px;
     }
 
-    .top-ad-banner {
-      position: fixed;
-      top: 0;
-      left: 0;
+    /* Banner publicitario integrado con imagen */
+    .ad-banner-container {
       width: 100%;
-      height: 48px;
-      background: rgba(8, 9, 11, 0.95);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.72rem;
-      color: #666;
-      z-index: 1000;
+      max-width: 440px;
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+      aspect-ratio: 16 / 9;
+      background: #000;
+    }
+
+    .ad-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .ad-tag {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
       letter-spacing: 1.5px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      z-index: 2;
       text-transform: uppercase;
     }
 
@@ -724,8 +742,9 @@
 </head>
 <body>
 
-  <aside class="top-ad-banner">
-    <span>Publicidad · Espacio 320x50</span>
+  <aside class="ad-banner-container">
+    <span class="ad-tag">PUBLICIDAD</span>
+    <img src="promo.jpg" alt="Publicidad" class="ad-image">
   </aside>
 
   <header>
@@ -839,7 +858,9 @@
 
     <aside class="donation-banner">
       <p>viviromorirgame es una experiencia libre y gratuita.</p>
-      <a href="https://ko-fi.com" target="_blank" class="btn-donate">☕ Ofrecer 1€ de tributo</a>
+      <a href="https://www.paypal.com/qrcodes/managed/21a590c6-3398-4447-9759-4b82d3b259d6" target="_blank" class="btn-donate">
+        ☕ Ofrecer 1€ de tributo (PayPal)
+      </a>
     </aside>
 
   </div>
@@ -858,7 +879,7 @@
   <script>
     const UMBRAL_GPS_METROS = 20;
 
-    // Reinicio limpio de producción: se limpian las pruebas locales de desarrollo
+    // Reset limpio de partidas de prueba locales
     if (!localStorage.getItem('viviromorir_v1_live_init')) {
       localStorage.removeItem('ranking_piqueras');
       localStorage.removeItem('bloqueo_piqueras');
@@ -1185,7 +1206,6 @@
       return Math.round(R * c);
     }
 
-    // Obligatoriedad GPS: el sensor nativo es la única vía de activación
     function iniciarSeguimientoGPS() {
       if (!("geolocation" in navigator)) {
         gpsDistanceText.textContent = "Geolocalización no soportada en este navegador.";
